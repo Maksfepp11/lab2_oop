@@ -1,61 +1,58 @@
-#include "triangle.h"
-#include <iostream>
-#include <vector>
+#define NOMINMAX  
+#define WIN32_LEAN_AND_MEAN  
+#include "triangle.h" 
+#include <windows.h>  
+
+int choice = 1;  
 
 int main() {
-    Triangle t;
-    
-    std::cout << "Введіть координати трикутника (x1 y1 x2 y2 x3 y3): ";
-    std::cin >> t.A.x >> t.A.y >> t.B.x >> t.B.y >> t.C.x >> t.C.y;
+    SetConsoleOutputCP(65001); 
+    Triangle t;  // Оголошення об'єкта трикутника
+    cout << "Введіть координати трикутника (x1 y1 x2 y2 x3 y3): ";  
+    cin >> t.A.x >> t.A.y >> t.B.x >> t.B.y >> t.C.x >> t.C.y;  // Введення координат трьох вершин трикутника
 
-    if (t.degenerate()) {
-        std::cout << "Трикутник вироджений!\n";
-        return 1;
+    cout << "Площа трикутника: " << t.area() << endl;  
+
+    cout << "Оберіть метод перевірки приналежності:\n";  
+    cout << "1 - Метод площі (Герон)\n";
+    cout << "2 - Метод векторного добутку\n";
+    cout << "Ваш вибір: ";
+    cin >> choice;  
+
+    if (choice == 1) {  
+        cout << "Використовується метод площі (Герон)\n";
+    } else if (choice == 2) {  
+        cout << "Використовується метод векторного добутку\n";
+    } else {  
+        cout << "Невірний вибір! Використовується метод за замовчуванням (Герон)\n";
+        choice = 1; 
     }
 
-    int choice;
-    do {
-        std::cout << "Оберіть метод перевірки приналежності точки трикутнику:\n";
-        std::cout << "1 - Метод площ\n";
-        std::cout << "2 - Метод векторного добутку\n";
-        std::cout << "Ваш вибір: ";
-        std::cin >> choice;
-
-        if (choice != 1 && choice != 2) {
-            std::cout << "Невірний вибір. Спробуйте ще раз.\n";
-        }
-    } while (choice != 1 && choice != 2);
-
-    int n;
-    std::cout << "Введіть кількість точок: ";
-    std::cin >> n;
-
-    std::vector<Point> points(n);
-    for (int i = 0; i < n; i++) {
-        std::cout << "Введіть координати точки " << i + 1 << " (x y): ";
-        std::cin >> points[i].x >> points[i].y;
+    if (t.degenerate()) {  // Перевірка, чи трикутник є виродженим 
+        cout << "Трикутник вироджений!" << endl;
     }
 
-    std::cout << "\nПеревірка точок:\n";
-    for (const auto &p : points) {
-        bool isInside = false;
+    int n;  // Змінна для зберігання кількості точок, для яких перевіряється приналежність
+    cout << "Введіть кількість точок: ";  
+    cin >> n;  // Введення кількості точок
+    while (n < 0 || n > 100) {  
+        cout << "Неможливо перевірити приналежність для данної кількості точок. Введіть кількість точок: ";
+        cin >> n;  // Введення кількості точок заново в разі помилки
+    }
+    vector<Point> points(n);  // Вектор для зберігання точок
 
-        if (choice == 1) {
-            isInside = t.contains(p, 1); // Метод площі
-        } else if (choice == 2) {
-            isInside = t.on_border(p); // Метод векторного добутку
-            if (!isInside) {
-                isInside = t.contains(p, 2); // Якщо точка не всередині, перевіряємо, чи на межі
-            }
-        }
+    for (int i = 0; i < n; ++i) {  // Цикл для обробки кожної точки
+        cout << "Введіть координати точки " << i + 1 << " (x y): ";  
+        cin >> points[i].x >> points[i].y;  // Введення координат точки
 
-        if (isInside) {
-            std::cout << "Точка (" << p.x << ", " << p.y << ") належить трикутнику.\n";
-        } else {
-            std::cout << "Точка (" << p.x << ", " << p.y << ") не належить трикутнику.\n";
+        if (t.on_border(points[i])) {  // Перевірка, чи точка лежить на межі трикутника
+            cout << "Точка лежить на межі трикутника." << endl;
+        } else if (t.contains(points[i])) {  // Перевірка, чи точка належить трикутнику
+            cout << "Точка належить трикутнику." << endl;
+        } else {  // Якщо точка не належить трикутнику та не лежить на його межі
+            cout << "Точка не належить трикутнику." << endl;
         }
     }
 
-    return 0;
+    return 0;  
 }
-
